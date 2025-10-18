@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P File Transfer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 P2P File Transfer</h1>
+            <p>Secure temporary file sharing with automatic expiry</p>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <div class="section upload-section">
+                <h2>📤 Send a File</h2>
+                <form action="/client1" method="post" enctype="multipart/form-data" class="upload-form">
+                    <div class="file-input-wrapper">
+                        <input type="file" name="user_file" id="user_file" class="file-input" required>
+                        <label for="user_file" class="file-label">
+                            <span class="file-icon">📁</span>
+                            <span class="file-text">Choose a file to upload</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">⬆️</span>
+                        Upload File
+                    </button>
+                </form>
+            </div>
+
+            <!-- Success Message -->
+            {% if otp %}
+            <div class="message success-message">
+                <div class="message-header">
+                    <span class="message-icon">✅</span>
+                    <strong>File uploaded successfully!</strong>
+                </div>
+                <div class="otp-info">
+                    <div class="otp-code">
+                        <label>Your OTP:</label>
+                        <code id="otp-display">{{ otp }}</code>
+                        <button class="copy-btn" onclick="copyOTP('{{ otp }}')">📋</button>
+                    </div>
+                    <div class="expiry-info">
+                        <label>Expires at:</label>
+                        <span>{{ expiry.strftime('%Y-%m-%d %H:%M:%S') }} UTC</span>
+                    </div>
+                    <div class="countdown-info">
+                        <label>Time remaining:</label>
+                        <span class="countdown" id="countdown">Calculating...</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Error Message -->
+            {% if error %}
+            <div class="message error-message">
+                <span class="message-icon">❌</span>
+                <strong>{{ error }}</strong>
+            </div>
+            {% endif %}
+
+            <!-- Download Section -->
+            <div class="section download-section">
+                <h2>📥 Receive a File</h2>
+                <form action="/download" method="post" class="download-form">
+                    <div class="input-group">
+                        <label for="otp">Enter 6-digit OTP:</label>
+                        <input type="text" name="otp" id="otp" class="otp-input" 
+                               maxlength="6" pattern="[0-9]{6}" placeholder="000000" required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">
+                        <span class="btn-icon">⬇️</span>
+                        Download File
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <footer>
+            <p>Files are automatically deleted after 2 minutes for security</p>
+        </footer>
+    </div>
+
+    <!-- Pass data to JavaScript -->
+    {% if otp %}
+    <script>
+        window.fileData = {
+            expiryTime: "{{ expiry.isoformat() }}",
+            otp: "{{ otp }}"
+        };
+    </script>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
